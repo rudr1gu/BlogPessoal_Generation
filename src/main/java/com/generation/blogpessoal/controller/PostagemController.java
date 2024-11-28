@@ -12,8 +12,14 @@ import org.springframework.http.ResponseEntity;
 
 import com.generation.blogpessoal.model.Postagem;
 import com.generation.blogpessoal.repository.PostagemRepository;
+
+import jakarta.validation.Valid;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 
 
@@ -33,6 +39,17 @@ public class PostagemController {
     public ResponseEntity<Postagem> getById(@PathVariable long id) {
         return postagemRepository.findById(id).map(resp -> ResponseEntity.ok(resp)).orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
+
+    @GetMapping("/titulo/{titulo}")
+    public ResponseEntity<List<Postagem>> getByTitulo(@PathVariable String titulo) {
+        return ResponseEntity.ok(postagemRepository.findAllByTituloContainingIgnoreCase(titulo));
+    }
+
+    @PostMapping("path")
+    public ResponseEntity<Postagem> post(@Valid @RequestBody Postagem postagem) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(postagemRepository.save(postagem));
+    }
+    
     
 
 }
