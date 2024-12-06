@@ -1,10 +1,5 @@
 package com.generation.blogpessoal.service;
 
-import com.generation.blogpessoal.model.Usuario;
-import com.generation.blogpessoal.model.UsuarioLogin;
-import com.generation.blogpessoal.repository.UsuarioRepository;
-import com.generation.blogpessoal.security.JwtService;
-
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,27 +11,35 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.generation.blogpessoal.model.UsuarioLogin;
+import com.generation.blogpessoal.model.Usuario;
+import com.generation.blogpessoal.repository.UsuarioRepository;
+import com.generation.blogpessoal.security.JwtService;
+
 @Service
 public class UsuarioService {
 
-    @Autowired
-    private UsuarioRepository usuarioRepository;
+	@Autowired
+	private UsuarioRepository usuarioRepository;
 
-    @Autowired
+	@Autowired
     private JwtService jwtService;
 
     @Autowired
-    private  AuthenticationManager authenticationManager;
+    private AuthenticationManager authenticationManager;
 
-    public Optional<Usuario> cadastrarUsuario(Usuario usuario) {
-        if(usuarioRepository.findByUsuario(usuario.getUsuario()).isPresent()) {
-            return Optional.empty();
-        }
-        usuario.setSenha(criptografarSenha(usuario.getSenha()));
-        return Optional.of(usuarioRepository.save(usuario));
-    }
+	public Optional<Usuario> cadastrarUsuario(Usuario usuario) {
 
-    public Optional<Usuario> atualizarUsuario(Usuario usuario) {
+		if (usuarioRepository.findByUsuario(usuario.getUsuario()).isPresent())
+			return Optional.empty();
+
+		usuario.setSenha(criptografarSenha(usuario.getSenha()));
+
+		return Optional.of(usuarioRepository.save(usuario));
+	
+	}
+
+	public Optional<Usuario> atualizarUsuario(Usuario usuario) {
 		
 		if(usuarioRepository.findById(usuario.getId()).isPresent()) {
 
@@ -53,10 +56,9 @@ public class UsuarioService {
 
 		return Optional.empty();
 	
-	}
+	}	
 
-    
-    public Optional<UsuarioLogin> autenticarUsuario(Optional<UsuarioLogin> usuarioLogin) {
+	public Optional<UsuarioLogin> autenticarUsuario(Optional<UsuarioLogin> usuarioLogin) {
         
         // Gera o Objeto de autenticação
 		var credenciais = new UsernamePasswordAuthenticationToken(usuarioLogin.get().getUsuario(), usuarioLogin.get().getSenha());
