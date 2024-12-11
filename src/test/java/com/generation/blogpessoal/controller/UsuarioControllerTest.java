@@ -35,8 +35,9 @@ public class UsuarioControllerTest {
 
     @BeforeAll
     void start() {
+        Usuario usuario = new Usuario(0L, "João", "joao@root.com", "12345678", "url");
         usuarioRepository.deleteAll();
-        usuarioService.cadastrarUsuario(new Usuario(0L, "João", "joao@root.com", "12345678", "url"));
+        usuarioService.cadastrarUsuario(usuario);
     }
 
     @Test
@@ -49,6 +50,18 @@ public class UsuarioControllerTest {
         ResponseEntity<Usuario> resposta = testRestTemplate.exchange("/usuarios/cadastrar", HttpMethod.POST, requisicao,
                 Usuario.class);
         assertEquals(HttpStatus.CREATED, resposta.getStatusCode());
+    }
+
+    @Test
+    @DisplayName("✔ Não deve duplicar Usuário!")
+    public void naoDeveCadastrarUsuario() {
+        Usuario usuario = new Usuario(0L, "João", "joao@root.com", "12345678", "url");
+
+        HttpEntity<Usuario> requisicao = new HttpEntity<Usuario>(usuario);
+
+        ResponseEntity<Usuario> resposta = testRestTemplate.exchange("/usuarios/cadastrar", HttpMethod.POST, requisicao,
+                Usuario.class);
+        assertEquals(HttpStatus.BAD_REQUEST , resposta.getStatusCode());
     }
     
 }
