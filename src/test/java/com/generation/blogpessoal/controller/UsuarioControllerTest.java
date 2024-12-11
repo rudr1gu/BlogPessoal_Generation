@@ -3,6 +3,8 @@ package com.generation.blogpessoal.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,7 +37,7 @@ public class UsuarioControllerTest {
 
     @BeforeAll
     void start() {
-        Usuario usuario = new Usuario(0L, "João", "joao@root.com", "12345678", "url");
+        Usuario usuario = new Usuario(0L, "João", "root@root.com", "rootroot", "url");
         usuarioRepository.deleteAll();
         usuarioService.cadastrarUsuario(usuario);
     }
@@ -43,7 +45,7 @@ public class UsuarioControllerTest {
     @Test
     @DisplayName("✔ Cadastrar Usuário!")
     public void deveCriarUsuario() {
-        Usuario usuario = new Usuario(0L, "Maria", "maria@mail.com", "12345678", "url");
+        Usuario usuario = new Usuario(0L, "Maria Silva", "maria85@mail.com", "12345678", "url");
 
         HttpEntity<Usuario> requisicao = new HttpEntity<Usuario>(usuario);
 
@@ -57,6 +59,8 @@ public class UsuarioControllerTest {
     public void naoDeveCadastrarUsuario() {
         Usuario usuario = new Usuario(0L, "João", "joao@root.com", "12345678", "url");
 
+        usuarioService.cadastrarUsuario(usuario);
+
         HttpEntity<Usuario> requisicao = new HttpEntity<Usuario>(usuario);
 
         ResponseEntity<Usuario> resposta = testRestTemplate.exchange("/usuarios/cadastrar", HttpMethod.POST, requisicao,
@@ -64,4 +68,37 @@ public class UsuarioControllerTest {
         assertEquals(HttpStatus.BAD_REQUEST , resposta.getStatusCode());
     }
     
+    @Test
+    @DisplayName("✔ Atualizar Usuário!")
+    public void deveAtualizarUsuario() {
+        Usuario usuario = new Usuario(0L, "João", "joao32423@root.com", "12345678", "url");
+
+        Optional<Usuario> usuarioCadastrado = usuarioService.cadastrarUsuario(usuario);
+
+        Usuario usuarioUpdate = new Usuario(usuarioCadastrado.get().getId(), "João da Silva", "joao444@root.com", "12345678", "url2");
+
+        HttpEntity<Usuario> requisicao = new HttpEntity<Usuario>(usuarioUpdate);
+
+        ResponseEntity<Usuario> resposta = testRestTemplate.withBasicAuth("root@root.com", "rootroot").exchange("/usuarios/atualizar", HttpMethod.PUT, requisicao, Usuario.class);
+
+        assertEquals(HttpStatus.OK, resposta.getStatusCode());        
+    }
+
+
+    @Test
+    @DisplayName("✔ Listar todos os Usuários!")
+    public void deveMostrarTodosUsuarios() {
+        Usuario usuario1 = new Usuario(0L, "Maria", "maria@mail.com", "12345678", "url");
+        Usuario usuario2 = new Usuario(0L, "Maria2", "maria2@mail.com", "12345678", "url");
+        Usuario usuario3 = new Usuario(0L, "Maria3", "maria3@mail.com", "12345678", "url");
+
+        usuarioService.cadastrarUsuario(usuario1);
+        usuarioService.cadastrarUsuario(usuario2);
+        usuarioService.cadastrarUsuario(usuario3);
+
+        ResponseEntity<String> resposta = testRestTemplate.withBasicAuth("root@root.com", "rootroot").exchange("/usuarios/all", HttpMethod.GET, null, String.class);
+
+        assertEquals(HttpStatus.OK, resposta.getStatusCode());
+    }
+
 }
